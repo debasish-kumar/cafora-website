@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Coffee, Mail, User, Sparkles, CheckCircle, Flame, ServerCrash, Loader2, ArrowRight } from "lucide-react";
 import { CAFE_VIBES } from "../data";
+import { supabase } from "../lib/supabase";
 
 export default function WaitlistForm() {
   const [name, setName] = useState("");
@@ -9,7 +10,7 @@ export default function WaitlistForm() {
   const [vibePreference, setVibePreference] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  
+
   // Successful registration state
   const [registeredSpot, setRegisteredSpot] = useState<number | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -37,7 +38,7 @@ export default function WaitlistForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
-    
+
     // Core Email validation
     if (!email || !email.includes("@")) {
       setErrorMessage("Please enter a valid email address.");
@@ -51,31 +52,57 @@ export default function WaitlistForm() {
 
     setIsSubmitting(true);
 
+    // try {
+    //   const response = await fetch("/api/waitlist", {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       name: name ? name.trim() : undefined,
+    //       email: email.trim(),
+    //       vibe_preference: vibePreference,
+    //     }),
+    //   });
+
+    //   const data = await response.json();
+
+    //   if (!response.ok) {
+    //     setErrorMessage(data.error || "Failed to join waitlist. Please try again.");
+    //   } else {
+    //     setRegisteredSpot(data.spotNumber);
+    //     setSuccessMsg(data.message || "Welcome to the CAFORA Inner Circle.");
+    //     // Increment count
+    //     setLiveCounter(data.spotNumber);
+    //   }
+    // } catch (err) {
+    //   setErrorMessage("Our data lines are backed up. Please check your connection and try again!");
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
     try {
-      const response = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: name ? name.trim() : undefined,
-          email: email.trim(),
-          vibe_preference: vibePreference,
-        }),
-      });
+      const { data, error } = await supabase
+        .from("waitlist")
+        .insert([
+          {
+            full_name: name,
+            email: email,
+            vibe_preference: vibePreference,
+          },
+        ]);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        setErrorMessage(data.error || "Failed to join waitlist. Please try again.");
+      if (error) {
+        console.log(error);
+        setErrorMessage("Failed to join waitlist. Please try again.");
       } else {
-        setRegisteredSpot(data.spotNumber);
-        setSuccessMsg(data.message || "Welcome to the CAFORA Inner Circle.");
-        // Increment count
-        setLiveCounter(data.spotNumber);
+        setRegisteredSpot(liveCounter + 1);
+        setSuccessMsg("Welcome to the CAFORA Inner Circle.");
+        setLiveCounter((prev) => prev + 1);
       }
     } catch (err) {
-      setErrorMessage("Our data lines are backed up. Please check your connection and try again!");
+      setErrorMessage(
+        "Our data lines are backed up. Please check your connection and try again!"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -86,13 +113,13 @@ export default function WaitlistForm() {
       {/* Background Glowing Gradients */}
       <div className="absolute top-[20%] left-[-10%] w-[450px] h-[450px] bg-[#EAB168]/5 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute bottom-[20%] right-[-10%] w-[450px] h-[450px] bg-[#EAB168]/5 rounded-full blur-[140px] pointer-events-none" />
-      
+
       {/* Dynamic line vector art background */}
       <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto z-10 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
+
           {/* Left Block - CTA Hype */}
           <div className="lg:col-span-5 flex flex-col items-start text-left">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#EAB168]/10 border border-[#EAB168]/20 rounded-full text-[10px] font-mono font-bold text-[#EAB168] uppercase tracking-widest mb-6 select-none">
@@ -119,7 +146,7 @@ export default function WaitlistForm() {
                 {liveCounter.toLocaleString()}
               </span>
               <p className="text-[10px] text-zinc-500 mt-1 font-mono">
-                Join 1,400+ people already exploring Cafora.
+                Join now. People already exploring Cafora.
               </p>
             </div>
           </div>
@@ -273,7 +300,7 @@ export default function WaitlistForm() {
                     <span className="text-[10px] font-mono tracking-[0.3em] text-[#EAB168] font-bold uppercase mb-2">
                       Exclusive Inner Circle Spot Secured
                     </span>
-                    
+
                     <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight font-display mb-3">
                       You are on the list!
                     </h3>
