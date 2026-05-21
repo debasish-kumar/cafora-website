@@ -16,92 +16,109 @@ export default function WaitlistForm() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Stats state
-  const [liveCounter, setLiveCounter] = useState<number>(1438);
+  const [liveCounter, setLiveCounter] = useState<number>(0); //changes1
 
   useEffect(() => {
     async function loadStats() {
-      try {
-        const res = await fetch("/api/waitlist/status");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && data.count) {
-            setLiveCounter(data.count);
-          }
-        }
-      } catch (err) {
-        console.warn("Could not retrieve current registered counters", err);
+      const { count, error } = await supabase
+        .from("waitlist")
+        .select("id", {
+          count: "exact",
+          head: true,
+        });
+
+      if (error) {
+        console.error("Counter fetch failed:", error.message);
+        return;
       }
+
+      setLiveCounter(count || 0);
     }
+
     loadStats();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setErrorMessage(null);
 
-    // Core Email validation
+    // Validation
     if (!email || !email.includes("@")) {
       setErrorMessage("Please enter a valid email address.");
       return;
     }
 
     if (!vibePreference) {
-      setErrorMessage("Please select your preferred cafe aura node.");
+      setErrorMessage("Please select your preferred cafe aura.");
       return;
     }
 
     setIsSubmitting(true);
 
-    // try {
-    //   const response = await fetch("/api/waitlist", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       name: name ? name.trim() : undefined,
-    //       email: email.trim(),
-    //       vibe_preference: vibePreference,
-    //     }),
-    //   });
-
-    //   const data = await response.json();
-
-    //   if (!response.ok) {
-    //     setErrorMessage(data.error || "Failed to join waitlist. Please try again.");
-    //   } else {
-    //     setRegisteredSpot(data.spotNumber);
-    //     setSuccessMsg(data.message || "Welcome to the CAFORA Inner Circle.");
-    //     // Increment count
-    //     setLiveCounter(data.spotNumber);
-    //   }
-    // } catch (err) {
-    //   setErrorMessage("Our data lines are backed up. Please check your connection and try again!");
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
     try {
       const { data, error } = await supabase
         .from("waitlist")
         .insert([
           {
-            full_name: name,
-            email: email,
+            full_name: name.trim() || null,
+            email: email.trim().toLowerCase(),
             vibe_preference: vibePreference,
           },
-        ]);
+        ])
+        .select();
 
+      // Database errors
       if (error) {
-        console.log(error);
-        setErrorMessage("Failed to join waitlist. Please try again.");
-      } else {
-        setRegisteredSpot(liveCounter + 1);
-        setSuccessMsg("Welcome to the CAFORA Inner Circle.");
-        setLiveCounter((prev) => prev + 1);
+        console.error("Supabase Error:", error);
+
+        // Duplicate email
+        if (error.code === "23505") {
+          setErrorMessage(
+            "This email is already registered on the waitlist."
+          );
+        }
+
+        // RLS issues
+        else if (
+          error.message.toLowerCase().includes("row-level security")
+        ) {
+          setErrorMessage(
+            "Database permission issue detected. Please contact support."
+          );
+        }
+
+        // Missing columns
+        else if (
+          error.message.toLowerCase().includes("column")
+        ) {
+          setErrorMessage(
+            "Database configuration issue detected."
+          );
+        }
+
+        // Generic DB error
+        else {
+          setErrorMessage(error.message);
+        }
+
+        return;
       }
+
+      // Success state
+      setRegisteredSpot(liveCounter + 1);
+
+      setSuccessMsg(
+        "Welcome to the CAFORA Inner Circle."
+      );
+
+      setLiveCounter((prev) => prev + 1);
+
     } catch (err) {
+      console.error("Unexpected Error:", err);
+
       setErrorMessage(
-        "Our data lines are backed up. Please check your connection and try again!"
+        "Network error detected. Please check your internet connection and try again."
       );
     } finally {
       setIsSubmitting(false);
