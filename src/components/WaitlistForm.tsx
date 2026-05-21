@@ -323,7 +323,7 @@ export default function WaitlistForm() {
                     </h3>
 
                     <p className="text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-md mb-8">
-                      {successMsg} A digital validation token has been routed to <b>{email}</b>. Share with your aesthetic friends to move up the priority ladder.
+                      {successMsg} Share with your aesthetic friends to move up the priority ladder.
                     </p>
 
                     {/* Premium Ticket Graphic */}
@@ -349,10 +349,10 @@ export default function WaitlistForm() {
                           <span>NAME</span>
                           <span className="text-white font-bold mt-0.5 truncate max-w-[100px]">{name ? name : "FOUNDER"}</span>
                         </div>
-                        <div className="flex flex-col items-center uppercase">
+                        {/* <div className="flex flex-col items-center uppercase">
                           <span>AURA</span>
                           <span className="text-[#EAB168] font-bold mt-0.5">{vibePreference.split(" ")[0]}</span>
-                        </div>
+                        </div> */}
                         <div className="flex flex-col items-end uppercase">
                           <span>STATUS</span>
                           <span className="text-green-500 font-bold mt-0.5">COMPLETED</span>
