@@ -1,0 +1,6 @@
+{
+  "name": "CAFORA",
+  "description": "Discover cafes that match your mood. CAFORA is a vibe-based cafe discovery platform built for aesthetics, ambience, crowd level, and lifestyle mapping.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  
+  --color-gold-cream: #EAB168;
+  --color-black: #000000;
+  --color-dark-grey: #1C1C1C;
+  --color-secondary-grey: #2B2B2B;
+  --color-white: #FFFFFF;
+  --color-accent-gold: #EAB168;
+}
+
+/* Custom scrollbar to keep layout highly premium */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #1C1C1C;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(234, 177, 104, 0.3);
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(28, 28, 28, 0.4);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-gold {
+  background: rgba(28, 28, 28, 0.55);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(234, 177, 104, 0.15);
+}
+
+.glow-hover {
+  transition: all 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 0 30px rgba(234, 177, 104, 0.15);
+  border-color: rgba(234, 177, 104, 0.3);
+}
