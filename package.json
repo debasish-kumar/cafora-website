@@ -22,7 +22,8 @@
     "posthog-js": "^1.374.3",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "vite": "^6.2.3"
+    "vite": "^6.2.3",
+    "vite-plugin-sitemap": "^0.8.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
